@@ -483,6 +483,7 @@ export default {
             userInfo: this.userInfo,
             roleIds: this.userInfo.roleIds
           };
+          console.log(userDto)
           userApi.updateUser(userDto).then(response => {
             if (response.status === 200) {
               // 隐藏弹窗并弹窗通知提示
