@@ -79,18 +79,23 @@
 
           <!-- 底部输入框区域 -->
           <div class="input-container">
-            <div class="input-tool-bar" ref="toolbar"></div>
-
-            <div class="input-content">
-              <div ref="editorContent" style="text-align:left; height: 100%;" />
-              <div class="input-send">
-                <el-button
-                  size="small"
-                  class="input-send-btn"
-                  type="primary"
-                  @click="sendMessage"
-                >发送</el-button>
+            <div class="input-tool-bar">
+              <div>
+                <span class="svg-container">
+                  <el-button type="text">
+                    <svg-icon icon-class="picture" />
+                  </el-button>
+                </span>
+                <span class="svg-container">
+                  <el-button type="text">
+                    <svg-icon icon-class="face" />
+                  </el-button>
+                </span>
               </div>
+              <el-button size="small" class="input-send-btn" type="primary" @click="sendMessage">发送</el-button>
+            </div>
+            <div class="input-content">
+              <el-input type="textarea" :rows="4" placeholder="请输入内容" v-model="inputText"></el-input>
             </div>
           </div>
         </div>
@@ -115,13 +120,11 @@ import Command from "@/utils/command";
 import { createPacket } from "@/utils/packet";
 import conversationApi from "@/api/conversation";
 import messageApi from "@/api/message";
-import E from "wangeditor";
 import { getToken } from "@/utils/auth";
 
 export default {
   data() {
     return {
-      editor: null,
       imagesUploadApi: "", // 上传图片到服务器
       headers: {
         "Content-Type": "application/json; charset=UTF-8",
@@ -235,31 +238,6 @@ export default {
     }
   },
   methods: {
-    // 创建编辑器
-    createEditor() {
-      this.$nextTick(() => {
-        if (!this.editor) {
-          this.editor = new E(this.$refs.toolbar, this.$refs.editorContent);
-          this.editor.customConfig.uploadImgShowBase64 = true; // 使用 base64 保存图片
-          this.editor.customConfig.uploadImgHeaders = this.headers;
-          this.editor.customConfig.uploadFileName = "file";
-          this.editor.customConfig.uploadImgServer = this.imagesUploadApi;
-          // 自定义菜单配置
-          this.editor.customConfig.menus = [
-            "bold",
-            "foreColor",
-            "emoticon",
-            "image"
-          ];
-          // 编辑器文本改变
-          this.editor.customConfig.onchange = html => {
-            console.log(html);
-            this.inputText = html;
-          };
-          this.editor.create();
-        }
-      });
-    },
     // 滚动到聊天框底部
     scrollToBottom() {
       const _this = this;
@@ -379,8 +357,6 @@ export default {
     },
     // 选择会话
     handleConversation(conversation) {
-      // 创建编辑器
-      this.createEditor();
       this.conversation = conversation;
       this.contact = this.getContact(conversation);
 
@@ -451,6 +427,13 @@ export default {
   border: 0;
   resize: none;
 }
+.svg-container {
+  svg {
+    width: 25px;
+    height: 25px;
+    margin: 0 5px;
+  }
+}
 
 ul {
   display: block;
@@ -515,9 +498,10 @@ ul {
 }
 
 .input-tool-bar {
+  padding: 0 10px;
   height: 40px;
   display: flex;
-  display: -webkit-flex;
+  justify-content: space-between;
   background-color: #eee;
   align-items: center;
 }
@@ -525,9 +509,6 @@ ul {
 .input-content {
   height: 160px;
   position: relative;
-  .w-e-text {
-    
-  }
 }
 
 .input-content .input-send {
@@ -538,13 +519,6 @@ ul {
 
 .input-send .input-send-btn {
   margin: 0 15px 15px 0;
-}
-
-.input-tool-bar i {
-  width: 35px;
-  text-align: center;
-  font-size: 1.5em;
-  color: #aab2bc;
 }
 
 .message {
