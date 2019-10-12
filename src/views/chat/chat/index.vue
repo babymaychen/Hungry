@@ -82,7 +82,14 @@
             <div class="input-tool-bar">
               <div>
                 <span class="svg-container">
-                  <el-button type="text">
+                  <input
+                    ref="image"
+                    type="file"
+                    accept="image/*"
+                    style="display: none;"
+                    @change="getFile"
+                  />
+                  <el-button type="text" @click="choiceImg">
                     <svg-icon icon-class="picture" />
                   </el-button>
                 </span>
@@ -238,6 +245,19 @@ export default {
     }
   },
   methods: {
+    choiceImg() {
+      this.$refs.image.dispatchEvent(new MouseEvent("click"));
+    },
+    getFile(event) {
+      const file = event.target.files[0]; 
+      let param = new FormData();
+      param.append('file', file);
+      messageApi.sendImage(param).then(response => {
+        if (response.status === 200) {
+          console.log(response.data);
+        }
+      });
+    },
     // 滚动到聊天框底部
     scrollToBottom() {
       const _this = this;

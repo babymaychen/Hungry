@@ -1,4 +1,5 @@
-import request from '@/utils/request'
+import request from "@/utils/request";
+import qs from "qs";
 
 export default {
   /**
@@ -8,9 +9,16 @@ export default {
    */
   getMessageList(messageListDto) {
     return request({
-      url: '/message/list',
-      method: 'post',
+      url: "/message/list",
+      method: "post",
       data: messageListDto
-    })
+    });
+  },
+  sendImage(formData) {
+    return request({
+      url: "/message/uploadFile",
+      method: "post",
+      data: formData
+    });
   }
-}
+};
