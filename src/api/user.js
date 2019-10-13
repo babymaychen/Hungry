@@ -1,4 +1,4 @@
-import request from '@/utils/request'
+import request from "@/utils/request";
 
 export default {
   /**
@@ -6,9 +6,9 @@ export default {
    */
   getUserInfo() {
     return request({
-      url: '/user/info',
-      method: 'get'
-    })
+      url: "/user/info",
+      method: "get"
+    });
   },
 
   /**
@@ -18,8 +18,8 @@ export default {
   getUserInfoById(userId) {
     return request({
       url: `/user/${userId}`,
-      method: 'get'
-    })
+      method: "get"
+    });
   },
 
   /**
@@ -28,10 +28,10 @@ export default {
    */
   getUserList(userPageDto) {
     return request({
-      url: '/user/list',
-      method: 'post',
+      url: "/user/list",
+      method: "post",
       data: userPageDto
-    })
+    });
   },
 
   /**
@@ -40,10 +40,23 @@ export default {
    */
   updateUser(userDto) {
     return request({
-      url: '/user',
-      method: 'put',
+      url: "/user",
+      method: "put",
       data: userDto
-    })
+    });
+  },
+
+  /**
+   * 提交用户头像
+   * @param {String} imgDataUrl 用户头像
+   */
+  uploadAvator(formData, userId) {
+    return request({
+      url: "/image/upload",
+      method: "post",
+      params: { imageType: "avatar", pk: userId },
+      data: formData
+    });
   },
 
   /**
@@ -52,10 +65,10 @@ export default {
    */
   addUser(userDto) {
     return request({
-      url: '/user',
-      method: 'post',
+      url: "/user",
+      method: "post",
       data: userDto
-    })
+    });
   },
 
   /**
@@ -65,8 +78,7 @@ export default {
   deleteUser(userId) {
     return request({
       url: `/user/${userId}`,
-      method: 'delete'
-    })
+      method: "delete"
+    });
   }
-
-}
+};

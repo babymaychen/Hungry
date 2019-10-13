@@ -86,12 +86,33 @@
         </template>
         <el-table-column label="头像" min-width="100px" align="center">
           <template slot-scope="{row}">
-            <el-image :src="row.avatar" style="width: 80px; height: 80px">
+            <el-image v-if="row.avatar" :src="row.avatar" style="width: 80px; height: 80px">
               <div slot="placeholder" class="image-slot">
                 加载中
                 <span class="dot">...</span>
               </div>
             </el-image>
+            <div v-else>
+              <el-button @click="toggleShow(row)" size="mini" type="primary">
+                上传
+                <i class="el-icon-upload el-icon--right"></i>
+              </el-button>
+              <my-upload
+                @crop-success="cropSuccess"
+                @crop-upload-success="cropUploadSuccess"
+                @crop-upload-fail="cropUploadFail"
+                field="img"
+                :width="300"
+                :height="300"
+                ki="0"
+                :no-square="true"
+                :params="params"
+                :headers="headers"
+                lang-type="zh"
+                v-model="show"
+                img-format="png"
+              ></my-upload>
+            </div>
           </template>
         </el-table-column>
       </el-table-column>
@@ -234,9 +255,11 @@ import waves from "@/directive/waves";
 import Pagination from "@/components/Pagination";
 import userApi from "@/api/user";
 import roleApi from "@/api/role";
+import dataURLtoBlob from "@/utils/Base64ToBlob";
+import myUpload from "vue-image-crop-upload";
 
 export default {
-  components: { Pagination },
+  components: { Pagination, "my-upload": myUpload },
   directives: { waves },
   filters: {
     genderTagFilter(gender) {
@@ -274,6 +297,15 @@ export default {
   },
   data() {
     return {
+      uploadImgUrl: process.env.VUE_APP_BASE_API + "/image/upload",
+      params: {
+        name: "avatar"
+      },
+      headers: {
+        smail: "*_~"
+      },
+      imgDataUrl: "",
+      show: false, // 展示头像裁剪界面
       list: null, // 列表数据
       total: 0, // 列表总数
       listLoading: true, // 是否正在加载
@@ -346,6 +378,35 @@ export default {
     this.getAllRole();
   },
   methods: {
+    cropSuccess(imgDataUrl, field) {
+      console.log("-------- crop success --------");
+      this.imgDataUrl = imgDataUrl;
+      const blob = dataURLtoBlob(imgDataUrl);
+      let param = new FormData();
+      param.append('files', blob, 'avatar.png');
+      userApi
+        .uploadAvator(param, this.userInfo.id)
+        .then(res => {
+          const { data } = res;
+          this.imgDataUrl = data;
+        })
+        .catch(err => console.log(err));
+    },
+    cropUploadSuccess(jsonData, field) {
+      console.log("-------- upload success --------");
+      console.log(jsonData);
+      console.log("field: " + field);
+    },
+    cropUploadFail(status, field) {
+      console.log("-------- upload fail --------");
+      console.log(status);
+      console.log("field: " + field);
+    },
+    toggleShow(user) {
+      console.log(user)
+      this.userInfo = user;
+      this.show = !this.show;
+    },
     // 根据列表查询条件查询表格数据
     getList() {
       this.listLoading = true;
@@ -483,7 +544,7 @@ export default {
             userInfo: this.userInfo,
             roleIds: this.userInfo.roleIds
           };
-          console.log(userDto)
+          console.log(userDto);
           userApi.updateUser(userDto).then(response => {
             if (response.status === 200) {
               // 隐藏弹窗并弹窗通知提示
